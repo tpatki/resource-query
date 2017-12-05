@@ -115,11 +115,12 @@ static void usage (int code)
 "                ALL: Aware of everything.\n"
 "            (default=CA).\n"
 "\n"
-"    -P, --match-policy=<low|high|locality>\n"
+"    -P, --match-policy=<low|high|locality|power>\n"
 "            Set the resource match selection policy. Available policies are:\n"
 "                high: Select resources with high ID first\n"
 "                low: Select resources with low ID first\n"
 "                locality: Select contiguous resources first in their ID space\n"
+"                power: Select resources if enough power is available\n"
 "            (default=high).\n"
 "\n"
 "    -g, --graph-format=<dot|graphml>\n"
@@ -146,6 +147,8 @@ static dfu_match_cb_t *create_match_cb (const string &policy)
         matcher = (dfu_match_cb_t *)new low_first_t ();
     else if (policy == "locality")
         matcher = (dfu_match_cb_t *)new greater_interval_first_t ();
+    else if (policy == "power")
+        matcher = (dfu_match_cb_t *)new power_t ();
     return matcher;
 }
 
