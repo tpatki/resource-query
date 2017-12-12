@@ -35,6 +35,7 @@
 #include <boost/algorithm/string.hpp>
 #include "command.hpp"
 #include "dfu_match_id_based.hpp"
+#include "dfu_match_power.hpp"
 
 using namespace std;
 using namespace boost;
