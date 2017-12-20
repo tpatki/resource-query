@@ -1,0 +1,2 @@
+match allocate ../data/jobspecs/simple_power/test.01.power130.node8.slot.yaml
+quit
