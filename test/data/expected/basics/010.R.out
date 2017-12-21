@@ -1,4 +1,3 @@
-INFO: Loading a matcher: CA
       ---------------core0[1:x]
       ------------socket0[1:x]
       ---------node0[1:s]
@@ -43,4 +42,3 @@ INFO: =============================
 INFO: No matching resources found
 INFO: JOBID=5
 INFO: =============================
-INFO: Bye bye 

@@ -26,6 +26,7 @@
 #define DFU_TRAVERSE_IMPL_HPP
 
 #include <iostream>
+#include <sstream>
 #include <cstdlib>
 #include "system_defaults.hpp"
 #include "resource_data.hpp"
@@ -79,9 +80,12 @@ public:
     const f_resource_graph_t *get_graph () const;
     const std::map<subsystem_t, vtx_t> *get_roots () const;
     const dfu_match_cb_t *get_match_cb () const;
+    const std::string &err_message () const;
+
     void set_graph (f_resource_graph_t *g);
     void set_roots (std::map<subsystem_t, vtx_t> *roots);
     void set_match_cb (dfu_match_cb_t *m);
+    void clear_err_message ();
 
     /*! Exclusive request? Return true if a resource in resources vector
      *  matches resource vertex u and its exclusivity field value is TRUE.
@@ -105,9 +109,8 @@ public:
      *
      *  \param subsystem depth-first walk on this subsystem graph for priming.
      *  \param u         visiting resource vertex.
-     *  \return          0 on success; -1 on error.
-     *                       EINVAL: invalid argument.
-     *                       ERANGE: some aggregate out of range.
+     *  \return          0 on success; -1 on error -- call err_message ()
+     *                   for detail.
      */
     int prime (const subsystem_t &subsystem, vtx_t u,
                std::map<std::string, int64_t> &to_parent);
@@ -163,24 +166,26 @@ public:
      *  \param exclusive true if exclusive access is requested for root.
      *  \param[out] needs
      *                   number of root resources requested.
-     *  \return          0 on success; -1 on error.
-     *                       EINVAL: invalid argument.
-     *                       ERANGE: planner detected an out-of-range value.
-     *                       ENOTSUP: internal error encountered.
+     *  \return          0 on success; -1 on error -- call err_message ()
+     *                   for detail.
      */
     int select (Jobspec::Jobspec &jobspec, vtx_t root, jobmeta_t &meta,
                 bool exclusive, unsigned int *needs);
 
-    /*! Update the resource state based on the previous select invokcation
+    /*! Update the resource state based on the previous select invocation
      *  and emit the allocation/reservation information.
      *
      *  \param root      root resource vertex.
      *  \param meta      metadata on the job.
      *  \param needs     the number of root resources requested.
      *  \param excl      exclusive access requested.
-     *  \return          0 on success; -1 on error.
+     *  \param ss        stringstream into which allocation/reservation
+     *                   information is printed.
+     *  \return          0 on success; -1 on error -- call err_message ()
+     *                   for detail.
      */
-    int update (vtx_t root, jobmeta_t &meta, unsigned int needs, bool excl);
+    int update (vtx_t root, jobmeta_t &meta, unsigned int needs, bool excl,
+                std::stringstream &ss);
 
     /*! Remove the allocation/reservation referred to by jobid and update
      *  the resource state.
@@ -199,14 +204,23 @@ private:
     bool in_subsystem (edg_t e, const subsystem_t &subsystem) const;
     bool stop_explore (edg_t e, const subsystem_t &subsystem) const;
 
-    bool prune (const jobmeta_t &meta, bool excl, const std::string &subsystem,
-                vtx_t u, const std::vector<Jobspec::Resource> &resources);
+    /*! Various pruning methods
+     */
+    int by_avail (const jobmeta_t &meta, const std::string &s, vtx_t u,
+                  const std::vector<Jobspec::Resource> &resources);
+    int by_excl (const jobmeta_t &meta, const std::string &s, vtx_t u,
+                 const Jobspec::Resource &resource);
+    int by_subplan (const jobmeta_t &meta, const std::string &s, vtx_t u,
+                    const Jobspec::Resource &resource);
+    int prune (const jobmeta_t &meta, bool excl, const std::string &subsystem,
+               vtx_t u, const std::vector<Jobspec::Resource> &resources);
 
     planner_t *subtree_plan (vtx_t u, std::vector<uint64_t> &avail,
                              std::vector<const char *> &types);
 
-    // Test various matching conditions between jobspec and graph
-    // including slot match
+    /*! Test various matching conditions between jobspec and graph
+     * including slot match
+     */
     void match (vtx_t u, const std::vector<Jobspec::Resource> &resources,
                 const Jobspec::Resource **slot_resource,
                 const Jobspec::Resource **match_resource);
@@ -232,38 +246,47 @@ private:
     // Explore for resource matching -- only DFV or UPV
     int explore (const jobmeta_t &meta, vtx_t u, const subsystem_t &subsystem,
                  const std::vector<Jobspec::Resource> &resources, bool *excl,
-                 bool *leaf, visit_t direction, scoring_api_t &to_parent);
+                 visit_t direction, scoring_api_t &to_parent);
     int aux_upv (const jobmeta_t &meta, vtx_t u, const subsystem_t &subsystem,
                  const std::vector<Jobspec::Resource> &resources, bool *excl,
                  scoring_api_t &to_parent);
+    int cnt_slot (const std::vector<Jobspec::Resource> &slot_shape,
+                  scoring_api_t &dfu_slot);
     int dom_slot (const jobmeta_t &meta, vtx_t u,
                   const std::vector<Jobspec::Resource> &resources, bool *excl,
-                  bool *leaf, scoring_api_t &dfu);
+                  scoring_api_t &dfu);
     int dom_exp (const jobmeta_t &meta, vtx_t u,
                  const std::vector<Jobspec::Resource> &resources, bool *excl,
-                 bool *leaf, scoring_api_t &to_parent);
+                 scoring_api_t &to_parent);
     int dom_dfv (const jobmeta_t &meta, vtx_t u,
                  const std::vector<Jobspec::Resource> &resources, bool *excl,
                  scoring_api_t &to_parent);
 
     // Emit R
     int emit_edge (edg_t e);
-    int emit_vertex (vtx_t u, unsigned int needs, bool exclusive);
+    int emit_vertex (vtx_t u, unsigned int needs, bool exclusive,
+                     std::stringstream &ss);
 
     // Update resource graph data store
-    int updcore (vtx_t u, const subsystem_t &subsystem, unsigned int needs,
-                 bool excl, int n, const jobmeta_t &meta,
-                 std::map<std::string, int64_t> &dfu,
-                 std::map<std::string, int64_t> &to_parent);
+    int upd_plan (vtx_t u, const subsystem_t &s, unsigned int needs,
+                  bool excl, const jobmeta_t &meta, int &n_p,
+                  std::map<std::string, int64_t> &to_parent);
+    int upd_sched (vtx_t u, const subsystem_t &subsystem, unsigned int needs,
+                   bool excl, int n, const jobmeta_t &meta,
+                   std::map<std::string, int64_t> &dfu,
+                   std::map<std::string, int64_t> &to_parent,
+                   std::stringstream &ss);
     int upd_upv (vtx_t u, const subsystem_t &subsystem, unsigned int needs,
                  bool excl, const jobmeta_t &meta,
                  std::map<std::string, int64_t> &to_parent);
     int upd_dfv (vtx_t u, unsigned int needs,
                  bool excl, const jobmeta_t &meta,
-                 std::map<std::string, int64_t> &to_parent);
+                 std::map<std::string, int64_t> &to_parent,
+                 std::stringstream &ss);
 
     // Remove allocation or reservations
     int rem_subtree_plan (vtx_t u, int64_t jobid, const std::string &subsystem);
+    int rem_x_checker (vtx_t u, int64_t jobid);
     int rem_plan (vtx_t u, int64_t jobid);
     int rem_dfv (vtx_t u, int64_t jobid);
     int rem_upv (vtx_t u, int64_t jobid);
@@ -282,6 +305,7 @@ private:
     std::map<subsystem_t, vtx_t> *m_roots = NULL;
     f_resource_graph_t *m_graph = NULL;
     dfu_match_cb_t *m_match = NULL;
+    std::string m_err_msg = "";
 }; // the end of class dfu_impl_t
 
 template <class lookup_t>

@@ -25,6 +25,12 @@
 #include <sys/time.h>
 #include "command.hpp"
 
+extern "C" {
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+}
+
 namespace Flux {
 namespace resource_model {
 
@@ -78,22 +84,38 @@ static void get_jobstate_str (job_state_t state, string &mode)
     return;
 }
 
-static void print_schedule_info (resource_context_t *ctx, uint64_t jobid,
-                                string &jobspec_fn, bool matched, int64_t at,
-                                double elapse)
+static int do_remove (resource_context_t *ctx, int64_t jobid)
+{
+    int rc = -1;
+    if ((rc = ctx->traverser.remove ((int64_t)jobid)) == 0) {
+        if (ctx->jobs.find (jobid) != ctx->jobs.end ()) {
+           job_info_t *info = ctx->jobs[jobid];
+           info->state = job_state_t::CANCELLED;
+        }
+    } else {
+        cout << ctx->traverser.err_message ();
+        ctx->traverser.clear_err_message ();
+    }
+    return rc;
+}
+
+static void print_schedule_info (resource_context_t *ctx, ostream &out,
+                                 uint64_t jobid, string &jobspec_fn,
+                                 bool matched, int64_t at,
+                                 double elapse)
 {
     if (matched) {
         job_state_t st;
         string mode = (at == 0)? "ALLOCATED" : "RESERVED";
         string scheduled_at = (at == 0)? "Now" : to_string (at);
-        cout << "INFO:" << " =============================" << endl;
-        cout << "INFO:" << " JOBID=" << jobid << endl;
-        cout << "INFO:" << " RESOURCES=" << mode << endl;
-        cout << "INFO:" << " SCHEDULED AT=" << scheduled_at << endl;
+        out << "INFO:" << " =============================" << endl;
+        out << "INFO:" << " JOBID=" << jobid << endl;
+        out << "INFO:" << " RESOURCES=" << mode << endl;
+        out << "INFO:" << " SCHEDULED AT=" << scheduled_at << endl;
         if (ctx->params.elapse_time)
-            cout << "INFO:" << " ELAPSE=" << to_string (elapse) << endl;
+            out << "INFO:" << " ELAPSE=" << to_string (elapse) << endl;
 
-        cout << "INFO:" << " =============================" << endl;
+        out << "INFO:" << " =============================" << endl;
         st = (at == 0)? job_state_t::ALLOCATED : job_state_t::RESERVED;
         ctx->jobs[jobid] = new job_info_t (jobid, st, at, jobspec_fn, elapse);
         if (at == 0)
@@ -101,12 +123,12 @@ static void print_schedule_info (resource_context_t *ctx, uint64_t jobid,
         else
             ctx->reservations[jobid] = jobid;
     } else {
-        cout << "INFO:" << " =============================" << endl;
-        cout << "INFO: " << "No matching resources found" << endl;
-        cout << "INFO:" << " JOBID=" << jobid << endl;
+        out << "INFO:" << " =============================" << endl;
+        out << "INFO: " << "No matching resources found" << endl;
+        out << "INFO:" << " JOBID=" << jobid << endl;
         if (ctx->params.elapse_time)
-            cout << "INFO:" << " ELAPSE=" << to_string (elapse) << endl;
-        cout << "INFO:" << " =============================" << endl;
+            out << "INFO:" << " ELAPSE=" << to_string (elapse) << endl;
+        out << "INFO:" << " =============================" << endl;
     }
     ctx->jobid_counter++;
 }
@@ -119,7 +141,7 @@ int cmd_match (resource_context_t *ctx, vector<string> &args)
     }
     string subcmd = args[1];
     if (!(subcmd == "allocate" || subcmd == "allocate_orelse_reserve")) {
-        cerr << "ERROR: unknown subcmd" << args[1] << endl;
+        cerr << "ERROR: unknown subcmd " << args[1] << endl;
         return 0;
     }
 
@@ -132,20 +154,26 @@ int cmd_match (resource_context_t *ctx, vector<string> &args)
         jobspec_in.exceptions (std::ifstream::failbit | std::ifstream::badbit);
         jobspec_in.open (jobspec_fn);
         Flux::Jobspec::Jobspec job {jobspec_in};
+        stringstream r_emitted;
         double elapse = 0.0f;
         struct timeval st, et;
 
         gettimeofday (&st, NULL);
         if (args[1] == "allocate")
             rc = ctx->traverser.run (job, match_op_t::MATCH_ALLOCATE,
-                                     (int64_t)jobid, &at);
+                                     (int64_t)jobid, &at, r_emitted);
         else if (args[1] == "allocate_orelse_reserve")
             rc = ctx->traverser.run (job,
                                      match_op_t::MATCH_ALLOCATE_ORELSE_RESERVE,
-                                     (int64_t)jobid, &at);
+                                     (int64_t)jobid, &at, r_emitted);
         gettimeofday (&et, NULL);
         elapse = get_elapse_time (st, et);
-        print_schedule_info (ctx, jobid, jobspec_fn, (rc == 0), at, elapse);
+
+        ostream &out = (ctx->params.r_fname != "")? ctx->params.r_out : cout;
+        out << r_emitted.str ();
+
+        print_schedule_info (ctx, out, jobid, jobspec_fn, (rc == 0), at, elapse);
+        jobspec_in.close ();
 
     } catch (ifstream::failure &e) {
         cerr << "ERROR: Exception occurs for input file I/O" << e.what () << endl;
@@ -162,24 +190,25 @@ int cmd_cancel (resource_context_t *ctx, vector<string> &args)
         cerr << "ERROR: malformed command" << endl;
         return 0;
     }
+
+    int rc = -1;
     string jobid_str = args[1];
     uint64_t jobid = (uint64_t)std::strtoll (jobid_str.c_str (), NULL, 10);
+
     if (ctx->allocations.find (jobid) != ctx->allocations.end ()) {
-        ctx->allocations.erase (jobid);
+        if ( (rc = do_remove (ctx, jobid)) == 0)
+            ctx->allocations.erase (jobid);
     } else if (ctx->reservations.find (jobid) != ctx->reservations.end ()) {
-        ctx->reservations.erase (jobid);
+        if ( (rc = do_remove (ctx, jobid)) == 0)
+            ctx->reservations.erase (jobid);
     } else {
-        cerr << "ERROR: nonexistent job " << jobid;
+        cerr << "ERROR: nonexistent job " << jobid << endl;
         goto done;
     }
 
-    if (ctx->traverser.remove ((int64_t)jobid) == 0) {
-        if (ctx->jobs.find (jobid) != ctx->jobs.end ()) {
-           job_info_t *info = ctx->jobs[jobid];
-           info->state = job_state_t::CANCELLED;
-        }
-    } else {
-        cerr << "ERROR: error encountered while removing job " << jobid;
+    if (rc != 0) {
+        cerr << "ERROR: error encountered while removing job " << jobid << endl;
+        cerr << "ERROR: " << strerror (errno) << endl;
     }
 
 done:
@@ -228,6 +257,7 @@ int cmd_cat (resource_context_t *ctx, vector<string> &args)
     while (getline (jspec_in, line))
         cout << line << endl;
     cout << "INFO: " << "Jobspec in " << jspec_filename << endl;
+    jspec_in.close ();
     return 0;
 }
 
@@ -257,7 +287,6 @@ int cmd_help (resource_context_t *ctx, vector<string> &args)
 
 int cmd_quit (resource_context_t *ctx, vector<string> &args)
 {
-    cout << "INFO: " << "Bye bye " << endl;
     return -1;
 }
 

@@ -1,4 +1,3 @@
-INFO: Loading a matcher: CA
       ---------------core0[1:x]
       ------------socket0[1:x]
       ---------node0[1:s]
@@ -39,4 +38,3 @@ INFO: JOBID=4
 INFO: RESOURCES=ALLOCATED
 INFO: SCHEDULED AT=Now
 INFO: =============================
-INFO: Bye bye 

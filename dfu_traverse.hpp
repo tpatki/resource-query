@@ -50,9 +50,12 @@ public:
     const f_resource_graph_t *get_graph () const;
     const std::map<subsystem_t, vtx_t> *get_roots () const;
     const dfu_match_cb_t *get_match_cb () const;
+    const std::string &err_message () const;
+
     void set_graph (f_resource_graph_t *g);
     void set_roots (std::map<subsystem_t, vtx_t> *roots);
     void set_match_cb (dfu_match_cb_t *m);
+    void clear_err_message ();
 
     /*! Prime the resource graph with subtree plans. Assume resource graph,
      *  roots and match callback have already been registered. The subtree
@@ -101,12 +104,14 @@ public:
      *                       allocate or allocate_orelse_reserve.
      *  \param id        job ID to use for the schedule operation.
      *  \param at[out]   when the job is scheduled if reserved.
+     *  \param ss        stringstream into which emitted R infor is stored.
      *  \return          0 on success; -1 on error.
      *                       EINVAL: graph, roots or match callback not set.
      *                       ENOTSUP: roots does not contain a subsystem the
      *                                match callback uses.
      */
-    int run (Jobspec::Jobspec &jobspec, match_op_t op, int64_t id, int64_t *at);
+    int run (Jobspec::Jobspec &jobspec, match_op_t op, int64_t id, int64_t *at,
+             std::stringstream &ss);
 
     /*! Remove the allocation/reservation referred to by jobid and update
      *  the resource state.

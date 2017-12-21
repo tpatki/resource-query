@@ -37,17 +37,24 @@
 #include "dfu_match_id_based.hpp"
 #include "dfu_match_power.hpp"
 
+extern "C" {
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+}
+
 using namespace std;
 using namespace boost;
 using namespace Flux::resource_model;
 
-#define OPTIONS "G:S:P:g:o:e:h"
+#define OPTIONS "G:S:P:g:o:t:e:h"
 static const struct option longopts[] = {
     {"grug",             required_argument,  0, 'G'},
     {"match-subsystems", required_argument,  0, 'S'},
     {"match-policy",     required_argument,  0, 'P'},
     {"graph-format",     required_argument,  0, 'g'},
-    {"output",           required_argument,  0, 'o'},
+    {"graph-output",     required_argument,  0, 'o'},
+    {"test-output",      required_argument,  0, 't'},
     {"elapse",           required_argument,  0, 'v'},
     {"help",             no_argument,        0, 'h'},
     { 0, 0, 0, 0 },
@@ -131,10 +138,14 @@ static void usage (int code)
 "    -e, --elapse-time\n"
 "            Print the elapse time per scheduling operation.\n"
 "\n"
-"    -o, --output=<basename>\n"
-"            Set the basename of the output file\n"
+"    -o, --graph-output=<basename>\n"
+"            Set the basename of the graph output file\n"
 "            For AT&T Graphviz dot, <basename>.dot\n"
 "            For GraphML, <basename>.graphml.\n"
+"\n"
+"    -t, --test-output=<filename>\n"
+"            Set the output filename where allocated or reserved resource\n"
+"            information is stored into.\n"
 "\n";
     exit (code);
 }
@@ -159,6 +170,7 @@ static void set_default_params (test_params_t &params)
     params.matcher_name = "CA";
     params.matcher_policy = "high";
     params.o_fname = "";
+    params.r_fname = "";
     params.o_fext = "dot";
     params.o_format = emit_format_t::GRAPHVIZ_DOT;
     params.elapse_time = false;
@@ -236,7 +248,7 @@ static int set_subsystems_use (resource_context_t *ctx, string n)
         if ( (rc = subsystem_exist (ctx, "containment")) == 0)
             matcher.add_subsystem ("containment", "*");
         if ( !rc && (rc = subsystem_exist (ctx, "power")) == 0)
-            matcher.add_subsystem ("power", "*");
+            matcher.add_subsystem ("power", "draws_from");
     } else if (iequals (matcher_type, string ("IB+IBBA"))) {
         if ( (rc = subsystem_exist (ctx, "ibnet")) == 0)
             matcher.add_subsystem ("ibnet", "connected_down");
@@ -246,7 +258,7 @@ static int set_subsystems_use (resource_context_t *ctx, string n)
         if ( (rc = subsystem_exist (ctx, "containment")) == 0)
             matcher.add_subsystem ("containment", "contains");
         if ( (rc = subsystem_exist (ctx, "power")) == 0)
-            matcher.add_subsystem ("power", "drawn");
+            matcher.add_subsystem ("power", "draws_from");
         if ( !rc && (rc = subsystem_exist (ctx, "ibnet")) == 0)
             matcher.add_subsystem ("ibnet", "connected_up");
     } else if (iequals (matcher_type, string ("V+PFS1BA"))) {
@@ -373,11 +385,11 @@ static void control_loop (resource_context_t *ctx)
 {
     cmd_func_f *cmd = NULL;
     while (1) {
-        char *line = readline("resource-query> ");
+        char *line = readline ("resource-query> ");
         if (line == NULL)
             continue;
         else if(*line)
-            add_history(line);
+            add_history (line);
 
         vector<string> tokens;
         istringstream iss (line);
@@ -399,10 +411,8 @@ static void subtree_plan_types (set<string> &aut)
 {
     // scheduler-driven aggregate-updates optimization is configured with
     // the following resource types.
-    aut.insert ("node");
+    // TODO: we can only support one resource type for this scheme for now
     aut.insert ("core");
-    aut.insert ("gpu");
-    aut.insert ("memory");
 }
 
 int main (int argc, char *argv[])
@@ -435,8 +445,11 @@ int main (int argc, char *argv[])
                 }
                 graph_format_to_ext (ctx->params.o_format, ctx->params.o_fext);
                 break;
-            case 'o': /* --output */
+            case 'o': /* --graph-output */
                 ctx->params.o_fname = optarg;
+                break;
+            case 't': /* --test-output */
+                ctx->params.r_fname = optarg;
                 break;
             case 'e': /* --elapse-time */
                 ctx->params.elapse_time = true;
@@ -484,10 +497,21 @@ int main (int argc, char *argv[])
     const string &dom = ctx->matcher->dom_subsystem ();
     subtree_plan_types (ctx->matcher->sdau_resource_types[dom]);
 
+    // please refactor
+    if (ctx->params.r_fname != "") {
+        ctx->params.r_out.exceptions (std::ofstream::failbit
+                                          | std::ofstream::badbit);
+        ctx->params.r_out.open (ctx->params.r_fname);
+    }
+
     ctx->traverser.initialize (fg, &(ctx->db.roots), ctx->matcher);
 
     // Command line begins
     control_loop (ctx);
+
+    if (ctx->params.r_fname != "") {
+        ctx->params.r_out.close ();
+    }
 
     // Output the filtered resource graph
     if (ctx->params.o_fname != "")

@@ -15,11 +15,11 @@ query="${SHARNESS_TEST_SRCDIR}/../resource-query"
 #     (e.g., node1 is preferred over node0 if available)
 #
 
-cmds001="${cmd_dir}/test01_power.cmds"
-test001_desc="match allocate with power on each node (pol=hi)"
-test_expect_success "${test001_desc}" '
-    ${query} -G ${grugs} -S CA -P high < ${cmds001} > 001.R.out &&
-    test_cmp 001.R.out ${exp_dir}/001.R.out
+cmds003="${cmd_dir}/test01_power.cmds"
+test003_desc="match allocate with power on each node (pol=hi)"
+test_expect_success "${test003_desc}" '
+    ${query} -G ${grugs} -S CA -P high -t 003.R.out < ${cmds003} &&
+    test_cmp 003.R.out ${exp_dir}/003.R.out
 '
 
 test_done
