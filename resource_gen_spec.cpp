@@ -110,7 +110,7 @@ void resource_gen_spec_t::setup_dynamic_property (dynamic_properties &dp, gg_t &
     dp.property("as_tgt_uplvl", get(&relation_gen_t::as_tgt_uplvl, g));
     dp.property("as_src_uplvl", get(&relation_gen_t::as_src_uplvl, g));
     /*Patki*/ 
-    dp.property("perf_class", get(&relation_gen_t::perf_class, g));
+    // dp.property("perf_class", get(&relation_gen_t::perf_class, g));
 }
 
 
@@ -161,6 +161,9 @@ int resource_gen_spec_t::read_graphml (const string &ifn)
     fstream in_file (ifn, fstream::in);
     try {
         boost::read_graphml (in_file, g, dp);
+        /*Patki: add perf_class..*/
+        
+        
     } catch (graph_exception &e) {
         cerr << e.what () << endl;
         rc = -1;

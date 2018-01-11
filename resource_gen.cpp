@@ -205,8 +205,9 @@ vtx_t dfs_emitter_t::emit_vertex (ggv_t u, gge_t e, const gg_t &recipe,
     /*Patki: add perf_class here. For now, assume a random number between 1 and 3*/
     /*Looks like here is where we do one vertex at a time. */
     /*Still not sure how this is called from tree_edge*/
-    recipe[u].perf_class = (rand() % 3) + 1; 
-    db.resource_graph[v].perf_class = recipe[u].perf_class;
+   // recipe[u].perf_class =
+    db.resource_graph[v].perf_class = (rand() % 3) + 1; 
+    //recipe[u].perf_class;
     /**/
 
     const char *res_types[1];
