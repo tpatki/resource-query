@@ -316,6 +316,9 @@ struct resource_pool_t {
     unsigned int size = 0;
     std::string unit;
 
+    /*Patki*/
+    int perf_class;
+
     schedule_t schedule;    //!< schedule data
     pool_infra_t idata;     //!< scheduling infrastructure data
 };

@@ -44,6 +44,9 @@ using namespace Flux::resource_model;
  * required by the concept of the depth first search
  * visitor. It must be lightweight.
  */
+
+/*Patki: What is an emitter? Which parts are boost? */
+
 class dfs_emitter_t : public default_dfs_visitor {
 public:
     dfs_emitter_t ();
@@ -198,6 +201,14 @@ vtx_t dfs_emitter_t::emit_vertex (ggv_t u, gge_t e, const gg_t &recipe,
     db.resource_graph[v].type = recipe[u].type;
     db.resource_graph[v].basename = recipe[u].basename;
     db.resource_graph[v].size = recipe[u].size;
+
+    /*Patki: add perf_class here. For now, assume a random number between 1 and 3*/
+    /*Looks like here is where we do one vertex at a time. */
+    /*Still not sure how this is called from tree_edge*/
+    recipe[u].perf_class = (rand() % 3) + 1; 
+    db.resource_graph[v].perf_class = recipe[u].perf_class;
+    /**/
+
     const char *res_types[1];
     res_types[0] = recipe[u].type.c_str ();
     const uint64_t avail = recipe[u].size;
@@ -277,6 +288,10 @@ void dfs_emitter_t::tree_edge (gge_t e, const gg_t &recipe)
     resource_graph_db_t &db = *m_db_p;
     string in;
     int i = 0, j = 0;;
+
+    /*Patki: initialize random seed for perf_class*/
+    srand(time(NULL));
+    /**/
 
     if (recipe[src_ggv].root) {
         //! ROOT

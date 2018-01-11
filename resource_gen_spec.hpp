@@ -50,6 +50,8 @@ struct resource_pool_gen_t {
     long size;
     std::string unit;
     std::string subsystem;
+    /*Patki*/
+    int perf_class;
 };
 
 struct relation_gen_t {

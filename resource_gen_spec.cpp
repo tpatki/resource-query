@@ -52,6 +52,9 @@ str2enum_t str2genmeth[] = {
     {"", GEN_UNKNOWN}
 };
 
+/*Patki: this template is unclear...it is used for writing graphviz dot format*/
+/*The operator call is a functor */
+
 template<class m1, class m2, class m3>
 class gg_label_writer_t {
 public:
@@ -106,6 +109,8 @@ void resource_gen_spec_t::setup_dynamic_property (dynamic_properties &dp, gg_t &
     dp.property("as_tgt_subsystem", get(&relation_gen_t::as_tgt_subsystem, g));
     dp.property("as_tgt_uplvl", get(&relation_gen_t::as_tgt_uplvl, g));
     dp.property("as_src_uplvl", get(&relation_gen_t::as_src_uplvl, g));
+    /*Patki*/ 
+    dp.property("perf_class", get(&relation_gen_t::perf_class, g));
 }
 
 
@@ -177,7 +182,11 @@ int resource_gen_spec_t::write_graphviz (const string &ofn, bool simple)
     try {
         vtx_basename_map_t v_bn_map = get(&resource_pool_gen_t::basename, g);
         vtx_size_map_t v_sz_map = get(&resource_pool_gen_t::size, g);
+        /*Patki, to be looked at in second pass */
+        /*Dong is not writing the unit to graphviz, 
+        * I'm not sure if perf_class needs to be written yet */
         //vtx_unit_map_t v_ut_map = get(&resource_pool_gen_t::unit, g);
+        //vtx_unit_map_t v_ut_map = get(&resource_pool_gen_t::perf_class, g);
         vtx_subsystem_map_t v_ss_map = get(&resource_pool_gen_t::subsystem, g);
         edg_relation_map_t e_rel_map = get(&relation_gen_t::relation, g);
         edg_gen_method_map_t e_gen_map = get(&relation_gen_t::gen_method, g);

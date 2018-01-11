@@ -58,6 +58,7 @@ public:
                           const f_resource_graph_t &g, scoring_api_t &dfu)
     {
         int64_t score = MATCH_MET;
+        fold::less comp;
         for (auto &resource : resources) {
             const std::string &type = resource.type;
             unsigned int qc = dfu.qualified_count (subsystem, type);
@@ -66,20 +67,12 @@ public:
                 score = MATCH_UNMET;
                 break;
             }
-            dfu.choose_accum_best_k (subsystem, type, count);
+            dfu.choose_accum_best_k (subsystem, type, count, comp);
         }
         dfu.set_overall_score (score);
         return (score == MATCH_MET)? 0 : -1;
     }
 
-    int dom_finish_slot (const subsystem_t &subsystem, scoring_api_t &dfu)
-    {
-        std::vector<std::string> types;
-        dfu.resrc_types (subsystem, types);
-        for (auto &type : types)
-            dfu.choose_accum_all (subsystem, type);
-        return 0;
-    }
 
     int dom_finish_vtx (vtx_t u, const subsystem_t &subsystem,
                         const std::vector<Flux::Jobspec::Resource> &resources,
@@ -87,6 +80,8 @@ public:
     {
         int64_t score = MATCH_MET;
         int64_t overall;
+        fold::less comp;
+        int64_t prev_score;
 
         for (auto &resource : resources) {
             if (resource.type != g[u].type)
@@ -102,16 +97,59 @@ public:
                     score = MATCH_UNMET;
                     break;
                 }
-                dfu.choose_accum_best_k (subsystem, c_resource.type, count);
+                dfu.choose_accum_best_k (subsystem, c_resource.type, count, comp);
             }
         }
 
-        // high id first policy (just a demo policy)
-        overall = (score == MATCH_MET)? (score + g[u].id + 1) : score;
+        /*Patki: perf class based info goes here. Perf class only applies to type:"node".
+            *How do I ensure that?*/
+        /*Algo: Assume that perf class 1 is better than perf class 2, and so on.
+        * pick nodes that result in perf classes that have min distance.*/
+       
+        /*get prev score*/
+        prev_score = dfu.overall_score();
+        /*In scoring_api, m_overall_score starts at -1, setting to 0 to make it simple to see the final score. 
+        * Should work even if we don't do the following */
+        if (prev_score == -1) {prev_score = 0;} 
+ 
+        overall = (score == MATCH_MET)? (prev_score + g[u].perf_class) : score;
         dfu.set_overall_score (overall);
         decr ();
         return (score == MATCH_MET)? 0 : -1;
     }
+
+
+    int dom_finish_slot (const subsystem_t &subsystem,
+                         const std::vector<Flux::Jobspec::Resource> &resources,
+                         const f_resource_graph_t &g, scoring_api_t &dfu)
+    {
+        int64_t score = MATCH_MET;
+
+        for (auto &resource : resources) {
+            if (resource.type != "slot")
+                continue;
+
+            // jobspec resource type matches with slot
+            for (auto &c_resource : resource.with) {
+                // test children resource count requirements
+                const std::string &c_type = c_resource.type;
+                unsigned int qc = dfu.qualified_count (subsystem, c_type);
+                unsigned int count = select_count (c_resource, qc);
+                if (count == 0) {
+                    score = MATCH_UNMET;
+                    break;
+                }
+                score = dfu.choose_accum_best_k (subsystem,
+                                                 c_resource.type, count);
+            }
+        }
+
+        dfu.set_overall_score (score);
+        decr ();
+        return (score > MATCH_MET)? 0 : -1;
+    }
+
+
 }; // the end of class power_t
 
 
