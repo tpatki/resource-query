@@ -281,6 +281,7 @@ struct resource_pool_t {
         memcpy (uuid, o.uuid, sizeof (uuid));
         size = o.size;
         unit = o.unit;
+        perf_class = o.perf_class;
         schedule = o.schedule;
         idata = o.idata;
     }
@@ -295,6 +296,7 @@ struct resource_pool_t {
         memcpy (uuid, o.uuid, sizeof (uuid));
         size = o.size;
         unit = o.unit;
+        perf_class = o.perf_class;
         schedule = o.schedule;
         idata = o.idata;
         return *this;

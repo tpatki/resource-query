@@ -1,10 +1,11 @@
 CPP           := g++
-BOOST_LDFLAGS := -L/usr/local/lib \
+BOOST_LDFLAGS := -L/usr/local/lib -L/Users/patki1/homebrew/brew/lib \
 	             -lboost_system -lboost_filesystem -lboost_graph \
                  -lyaml-cpp -lreadline
 LDFLAGS       := -O3 $(BOOST_LDFLAGS) -L./planner -lplanner -lczmq -lzmq
 CPPFLAGS      := -O3 -std=c++11 -MMD -MP
-INCLUDES      := -I/usr/include -I/usr/local/include
+#INCLUDES      := -I/usr/include -I/usr/local/include
+INCLUDES      := -I./ -I/usr/include -I/Users/patki1/homebrew/brew/include
 OBJS          := resource-query.o \
                  command.o \
                  dfu_traverse.o \

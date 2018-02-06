@@ -206,10 +206,15 @@ vtx_t dfs_emitter_t::emit_vertex (ggv_t u, gge_t e, const gg_t &recipe,
     /*Looks like here is where we do one vertex at a time. */
     /*Still not sure how this is called from tree_edge*/
    // recipe[u].perf_class =
-    if (db.resource_graph[v].type == "node")
-            db.resource_graph[v].perf_class = (rand() % 3) + 1; 
-    //recipe[u].perf_class;
-    /**/
+   // db.resource_graph[v].type.compare
+     if ((db.resource_graph[v].type) == "node") {
+            db.resource_graph[v].perf_class = (rand() % 3) + 1;
+    }
+    else {
+    	 	 db.resource_graph[v].perf_class = -1;
+    }
+
+     std::cout << "Type: " << db.resource_graph[v].type << " ID: " << id << " Class: " <<  db.resource_graph[v].perf_class << std::endl;
 
     const char *res_types[1];
     res_types[0] = recipe[u].type.c_str ();
@@ -292,7 +297,7 @@ void dfs_emitter_t::tree_edge (gge_t e, const gg_t &recipe)
     int i = 0, j = 0;;
 
     /*Patki: initialize random seed for perf_class*/
-    if (db.resource_graph[v].type == "node")
+   // if ((db.resource_graph[v].type).compare("node") == 0)
          srand(time(NULL));
     /**/
 

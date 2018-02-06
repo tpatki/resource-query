@@ -477,8 +477,9 @@ int main (int argc, char *argv[])
         cerr << "ERROR: " << rgen.err_message () << endl;
         return EXIT_FAILURE;
     }
+    std::cout << "BLAH 1" << std::endl;
     resource_graph_t &g = ctx->db.resource_graph;
-
+    std::cout << "BLAH 2 " << std::endl;
     // Configure the matcher and its subsystem selector
     cout << "INFO: Loading a matcher: " << ctx->params.matcher_name << endl;
     if (set_subsystems_use (ctx, ctx->params.matcher_name) != 0) {

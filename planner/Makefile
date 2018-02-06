@@ -1,11 +1,12 @@
 CPP       := g++
 CC        := gcc
-INCLUDES  := -I./ -I/usr/include/czmq -I/usr/local/include
+#INCLUDES  := -I./ -I/usr/include/czmq -I/usr/local/include
+INCLUDES  := -I./ -I/Users/patki1/homebrew/brew/include -I/usr/include
 CFLAGS    := -Wall -O3 #-O0 -g
 CPPFLAGS  := -Wall -O3 #-O0 -g
 #CFLAGS    := -Wall -O0 -g
 #CPPFLAGS  := -Wall -O0 -g
-LDFLAGS   := -L/usr/local/lib -lczmq -lzmq 
+LDFLAGS   := -L/Users/patki1/homebrew/brew/lib -lczmq -lzmq 
 ARCHIVE   := ar
 OBJS      := rbtree.o xzmalloc.o planner.o
 TAP_OBJS  := tap.o
