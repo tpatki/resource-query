@@ -211,10 +211,10 @@ vtx_t dfs_emitter_t::emit_vertex (ggv_t u, gge_t e, const gg_t &recipe,
             db.resource_graph[v].perf_class = (rand() % 3) + 1;
     }
     else {
-    	 	 db.resource_graph[v].perf_class = -1;
+    	 	 db.resource_graph[v].perf_class = 9999;
     }
 
-     std::cout << "Type: " << db.resource_graph[v].type << " ID: " << id << " Class: " <<  db.resource_graph[v].perf_class << std::endl;
+   //  std::cout << "Type: " << db.resource_graph[v].type << " ID: " << id << " Class: " <<  db.resource_graph[v].perf_class << std::endl;
 
     const char *res_types[1];
     res_types[0] = recipe[u].type.c_str ();
