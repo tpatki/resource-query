@@ -111,7 +111,7 @@ public:
      *                                match callback uses.
      */
     int run (Jobspec::Jobspec &jobspec, match_op_t op, int64_t id, int64_t *at,
-             std::stringstream &ss);
+             std::stringstream &ss, const std::string policy);
 
     /*! Remove the allocation/reservation referred to by jobid and update
      *  the resource state.
@@ -126,7 +126,7 @@ private:
     int schedule (Jobspec::Jobspec &jobspec,
                   detail::jobmeta_t &meta, bool x, match_op_t op,
                   vtx_t root, unsigned int *needs,
-                  std::unordered_map<std::string, int64_t> &dfv);
+                  std::unordered_map<std::string, int64_t> &dfv, const std::string policy);
 };
 
 } // namespace resource_model

@@ -46,12 +46,24 @@ using namespace Flux::Jobspec;
 int dfu_traverser_t::schedule (Jobspec::Jobspec &jobspec,
                                detail::jobmeta_t &meta, bool x, match_op_t op,
                                vtx_t root, unsigned int *needs,
-                               std::unordered_map<string, int64_t> &dfv)
+                               std::unordered_map<string, int64_t> &dfv, const string policy)
 {
     int rc = -1;
+    std::cout <<" In schedule for job ID : " << meta.jobid <<", meta.at = " << meta.at << std::endl;
+
     const subsystem_t &dom = get_match_cb ()->dom_subsystem ();
     /* Allocate */
     rc = detail::dfu_impl_t::select (jobspec, root, meta, x, needs);
+
+    // Patki: Successful selection, update duration if the policy is "power"
+    // where we are using a performance class based selection.
+    if (rc == 0 && policy == "power") {
+    		// Patki: update job's duration here based on the worst node it got placed on.
+    		// This way, the job doesn't get killed prematurely because it was allocated a bad node.
+    		// Where should this update be?
+    	     meta.duration = perf_obj.get_duration_multiplier() * meta.duration;
+    }
+
     if ((rc != 0) && (op == match_op_t::MATCH_ALLOCATE_ORELSE_RESERVE)) {
         /* Or else reserve */
         meta.allocate = false;
@@ -178,7 +190,7 @@ int dfu_traverser_t::initialize (f_resource_graph_t *g,
 }
 
 int dfu_traverser_t::run (Jobspec::Jobspec &jobspec, match_op_t op,
-                          int64_t jobid, int64_t *at, stringstream &ss)
+                          int64_t jobid, int64_t *at, stringstream &ss, const string policy)
 {
     const subsystem_t &dom = get_match_cb ()->dom_subsystem ();
     if (!get_graph () || !get_roots ()
@@ -188,6 +200,7 @@ int dfu_traverser_t::run (Jobspec::Jobspec &jobspec, match_op_t op,
         return -1;
     }
 
+    std::cout << "In run, jobid: " << jobid << " at is: " << *at << std::endl;
     int rc = -1;
     detail::jobmeta_t meta;
     unsigned int needs = 0;
@@ -198,13 +211,14 @@ int dfu_traverser_t::run (Jobspec::Jobspec &jobspec, match_op_t op,
 
     //Patki: Duration is first set here in meta.build from the attributes and is stored in meta.duration
     meta.build (jobspec, true, jobid, *at);
-    if ( (rc = schedule (jobspec, meta, x, op, root, &needs, dfv)) ==  0) {
+    if ( (rc = schedule (jobspec, meta, x, op, root, &needs, dfv, policy)) ==  0) {
         *at = meta.at;
         // std::cout << "(3) Job ID: " << meta.jobid << ", Duration: " << meta.duration << ", At: " << meta.at << std::endl;
         rc = detail::dfu_impl_t::update (root, meta, needs, x, ss);
-        // Patki: update job's duration here based on the worst node it got placed on.
-        // This way, the job doesn't get killed prematurely because it was allocated a bad node.
-        meta.duration = perf_obj.get_duration_multiplier() * meta.duration;
+//        // Patki: update job's duration here based on the worst node it got placed on.
+//        // This way, the job doesn't get killed prematurely because it was allocated a bad node.
+//        // Where should this update be?
+//        meta.duration = perf_obj.get_duration_multiplier() * meta.duration;
   }
     return rc;
 }
