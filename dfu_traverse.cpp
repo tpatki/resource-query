@@ -49,8 +49,6 @@ int dfu_traverser_t::schedule (Jobspec::Jobspec &jobspec,
                                std::unordered_map<string, int64_t> &dfv, const string policy)
 {
     int rc = -1;
-    std::cout <<" In schedule for job ID : " << meta.jobid <<", meta.at = " << meta.at << std::endl;
-
     const subsystem_t &dom = get_match_cb ()->dom_subsystem ();
     /* Allocate */
     rc = detail::dfu_impl_t::select (jobspec, root, meta, x, needs);
@@ -60,7 +58,6 @@ int dfu_traverser_t::schedule (Jobspec::Jobspec &jobspec,
     if (rc == 0 && policy == "power") {
     		// Patki: update job's duration here based on the worst node it got placed on.
     		// This way, the job doesn't get killed prematurely because it was allocated a bad node.
-    		// Where should this update be?
     	     meta.duration = perf_obj.get_duration_multiplier() * meta.duration;
     }
 
@@ -192,6 +189,9 @@ int dfu_traverser_t::initialize (f_resource_graph_t *g,
 int dfu_traverser_t::run (Jobspec::Jobspec &jobspec, match_op_t op,
                           int64_t jobid, int64_t *at, stringstream &ss, const string policy)
 {
+	// Patki: Here is where the graph is created...we have the context info here.
+	// If the policy is power, the perf class should be set. Otherwise, not. So, how do I percloate
+	// that to the actual graph tree_edge/emit_vertex?
     const subsystem_t &dom = get_match_cb ()->dom_subsystem ();
     if (!get_graph () || !get_roots ()
         || get_roots ()->find (dom) == get_roots ()->end ()
@@ -200,7 +200,6 @@ int dfu_traverser_t::run (Jobspec::Jobspec &jobspec, match_op_t op,
         return -1;
     }
 
-    std::cout << "In run, jobid: " << jobid << " at is: " << *at << std::endl;
     int rc = -1;
     detail::jobmeta_t meta;
     unsigned int needs = 0;
@@ -215,10 +214,6 @@ int dfu_traverser_t::run (Jobspec::Jobspec &jobspec, match_op_t op,
         *at = meta.at;
         // std::cout << "(3) Job ID: " << meta.jobid << ", Duration: " << meta.duration << ", At: " << meta.at << std::endl;
         rc = detail::dfu_impl_t::update (root, meta, needs, x, ss);
-//        // Patki: update job's duration here based on the worst node it got placed on.
-//        // This way, the job doesn't get killed prematurely because it was allocated a bad node.
-//        // Where should this update be?
-//        meta.duration = perf_obj.get_duration_multiplier() * meta.duration;
   }
     return rc;
 }

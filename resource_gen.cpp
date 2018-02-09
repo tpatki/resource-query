@@ -207,11 +207,12 @@ vtx_t dfs_emitter_t::emit_vertex (ggv_t u, gge_t e, const gg_t &recipe,
     /*Still not sure how this is called from tree_edge*/
    // recipe[u].perf_class =
    // db.resource_graph[v].type.compare
+    // Should ideally only be done if the policy is "power" ... how to pass in context here?
      if ((db.resource_graph[v].type) == "node") {
             db.resource_graph[v].perf_class = (rand() % 3) + 1;
     }
     else {
-    	 	 db.resource_graph[v].perf_class = 9999;
+    	 	 db.resource_graph[v].perf_class = 9999;    // large number as we use fold::less for comparison
     }
 
    //  std::cout << "Type: " << db.resource_graph[v].type << " ID: " << id << " Class: " <<  db.resource_graph[v].perf_class << std::endl;

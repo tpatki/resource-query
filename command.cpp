@@ -158,8 +158,6 @@ int cmd_match (resource_context_t *ctx, vector<string> &args)
         double elapse = 0.0f;
         struct timeval st, et;
 
-        std::cout << "Policy: " << ctx->params.matcher_policy;
-
         gettimeofday (&st, NULL);
         if (args[1] == "allocate")
             rc = ctx->traverser.run (job, match_op_t::MATCH_ALLOCATE,
