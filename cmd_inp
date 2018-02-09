@@ -1,2 +1,11 @@
 match allocate test/data/jobspecs/simple_power/test.01.power130.node8.slot.yaml
+match allocate test/data/jobspecs/simple_power/test.01.power130.node8.slot.yaml
+match allocate test/data/jobspecs/simple_power/test.01.power130.node8.slot.yaml
+match allocate test/data/jobspecs/simple_power/test.01.power130.node8.slot.yaml
+match allocate test/data/jobspecs/simple_power/test.01.power130.node8.slot.yaml
+match allocate test/data/jobspecs/simple_power/test.01.power130.node8.slot.yaml
+match allocate test/data/jobspecs/simple_power/test.01.power130.node8.slot.yaml
+match allocate test/data/jobspecs/simple_power/test.01.power130.node8.slot.yaml
+match allocate test/data/jobspecs/simple_power/test.01.power130.node8.slot.yaml
+match allocate test/data/jobspecs/simple_power/test.01.power130.node8.slot.yaml
 quit

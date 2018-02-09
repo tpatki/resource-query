@@ -50,8 +50,6 @@ int dfu_traverser_t::schedule (Jobspec::Jobspec &jobspec,
 {
     int rc = -1;
     const subsystem_t &dom = get_match_cb ()->dom_subsystem ();
-
-    std::cout << "In schedule" << std::endl;
     /* Allocate */
     rc = detail::dfu_impl_t::select (jobspec, root, meta, x, needs);
     if ((rc != 0) && (op == match_op_t::MATCH_ALLOCATE_ORELSE_RESERVE)) {
@@ -197,25 +195,17 @@ int dfu_traverser_t::run (Jobspec::Jobspec &jobspec, match_op_t op,
     bool x = detail::dfu_impl_t::exclusivity (jobspec.resources, root);
     std::unordered_map<string, int64_t> dfv;
     detail::dfu_impl_t::prime (jobspec.resources, dfv);
+
     //Patki: Duration is first set here in meta.build from the attributes and is stored in meta.duration
-    //Need to find the spot to update it when we get a bad performance class.
     meta.build (jobspec, true, jobid, *at);
-    std::cout << "(1) Job ID: " << meta.jobid << ", Duration: " << meta.duration << ", At: " << meta.at << std::endl;
     if ( (rc = schedule (jobspec, meta, x, op, root, &needs, dfv)) ==  0) {
-    	std::cout << "(2) Job ID: " << meta.jobid << ", Duration: " << meta.duration << ", At: " << meta.at << std::endl;
         *at = meta.at;
-
-    //std::cout << "(3) Job ID: " << meta.jobid << ", Duration: " << meta.duration << ", At: " << meta.at << std::endl;
+        // std::cout << "(3) Job ID: " << meta.jobid << ", Duration: " << meta.duration << ", At: " << meta.at << std::endl;
         rc = detail::dfu_impl_t::update (root, meta, needs, x, ss);
-        //Patki: update time value
-        		std::cout << "perf_obj addr: " << &perf_obj << std::endl;
-            std::cout << "In run: original is " << meta.duration << std::endl;
-            std::cout << "Run perf_class: " << perf_obj.get_worst_perf_class() << std::endl;
-            meta.duration = (1+(perf_obj.get_worst_perf_class()*0.03)) * meta.duration;
-            std::cout << "In run: updated is " << meta.duration << std::endl;
-
-    //std::cout << "(4) Job ID: " << meta.jobid << ", Duration: " << meta.duration << ", At: " << meta.at << std::endl;
-    }
+        // Patki: update job's duration here based on the worst node it got placed on.
+        // This way, the job doesn't get killed prematurely because it was allocated a bad node.
+        meta.duration = perf_obj.get_duration_multiplier() * meta.duration;
+  }
     return rc;
 }
 

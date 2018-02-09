@@ -41,6 +41,14 @@ namespace resource_model {
 /* Power match policy: select resources if enough power is available
  * for the job. 
  */
+
+/*Patki. Algo: Assume that perf class 1 is better than perf class 2, and so on.
+ * Allocate nodes that belong to lowest class first.
+ * Assume a 3% difference between performance classes, that way we can modify duration based on the
+ * lowest performance class that we get, which will be the class of the last node
+ * that we select for that particular job.
+ */
+
 class power_t : public dfu_match_cb_t
 {
 public:
@@ -58,16 +66,12 @@ public:
                           const std::vector<Flux::Jobspec::Resource> &resources,
                           const f_resource_graph_t &g, scoring_api_t &dfu)
     {
-
-//    	std::cout << "In finish graph" << std::endl;
-
         int64_t score = MATCH_MET;
         fold::less comp;
         for (auto &resource : resources) {
             const std::string &type = resource.type;
             unsigned int qc = dfu.qualified_count (subsystem, type);
             unsigned int count = select_count (resource, qc);
-           // std::cout << "FinGraph Type: " << resource.type << " QualCnt: " << qc << " SelCnt: " << count << std::endl;
             if (count == 0) {
                 score = MATCH_UNMET;
                 break;
@@ -84,23 +88,15 @@ public:
                         const f_resource_graph_t &g, scoring_api_t &dfu)
     {
 
-  //  	std::cout << "In finish vtx" << std::endl;
         int64_t score = MATCH_MET;
         int64_t overall;
         fold::less comp;
-     //   int64_t prev_score;
-
-
-  //      std::cout << "finvtx g[u].type is: " << g[u].type << std::endl;
 
         for (auto &resource : resources) {
             if (resource.type != g[u].type)
                 continue;
-
-    //        std::cout << "Type matched: entered" << std::endl;
             // jobspec resource type matches with the visiting vertex
             for (auto &c_resource : resource.with) {
-   //         		std::cout << "Resource_with: entered 2" << std::endl;
                 // test children resource count requirements
                 const std::string &c_type = c_resource.type;
                 //input here is (containment, core)
@@ -111,34 +107,16 @@ public:
                     score = MATCH_UNMET;
                     break;
                 }
-   //             std::cout << "Subsys: " << subsystem <<", c_res: type " << c_resource.type << ", count: " << count <<std::endl;
                 dfu.choose_accum_best_k (subsystem, c_resource.type, count, comp);
-     //           std::cout << "Subsys: " << subsystem <<", c_res: type " << c_resource.type << ", count: " << count <<std::endl;
-       //         std::cout << "choose best k: " <<  dfu.choose_accum_best_k (subsystem, c_resource.type, count, comp);
-            }
-        }
-
-
-        /*Patki. Algo: Assume that perf class 1 is better than perf class 2, and so on.
-         * Allocate nodes that belong to lowest class first.
-         * Assume a 3% difference between performance classes, that way we can modify duration based on the
-         * lowest performance class that we get, which will be the class of the last node
-         * that we select for that particular job.
-         */
+           }
+     }
        
-        /*get prev score*/
-        //prev_score = dfu.overall_score();
-        /*In scoring_api, m_overall_score starts at -1, setting to 0 to make it simple to see the final score. 
-        * Should work even if we don't do the following */
-        //if (prev_score == -1) {prev_score = 0;}
         overall = (score == MATCH_MET)? (score + g[u].perf_class) : score;
         dfu.set_overall_score (overall);
+
        if (g[u].type == "node") {
-    	   	   std::cout << "perf_obj addr: " << &perf_obj << std::endl;
-//        	 	// std::cout << "Prev score: " << prev_score << std::endl;
-        		// std::cout << "fin_vtx: node" <<  g[u].id << ", class: " << g[u].perf_class << std::endl;
-        		 perf_obj.set_worst_perf_class (g[u].perf_class);
-        		 std:: cout << "Worst class: " << perf_obj.get_worst_perf_class() << std::endl;
+    	   	   // Update the worst performance class that the job encounters, so as to modify its duration later.
+    	   	   perf_obj.set_worst_perf_class (g[u].perf_class);
          }
         decr ();
         return (score == MATCH_MET)? 0 : -1;

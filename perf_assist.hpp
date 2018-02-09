@@ -33,34 +33,40 @@ class perf_assist_t
 public:
     perf_assist_t () {
     		m_worst_perf_class = -1;
+    		// Assume that each performance class degrades by 3%.
+    		// TODO: We will want to make the number of performance classes as well as the slowdown configurable
+    		// but I'll worry about that later.
+    		per_class_slowdown = 0.03;
+
     }
-//    perf_assist_t &operator= (const perf_assist_t &o)
-//    {
-//    		m_worst_perf_class = o.m_worst_perf_class;
-//        return *this;
-//    }
+
     ~perf_assist_t () { }
 
     //Additional public function to pass around performance class
-
     int get_worst_perf_class() {
-    		std::cout << "get_ Made it here." << std::endl;
     		return m_worst_perf_class;
     }
 
     void set_worst_perf_class (int wpc) {
-    		std::cout << "set_ Made it here." << std::endl;
     		if (wpc > m_worst_perf_class)
     			m_worst_perf_class = wpc;
+    }
+
+    float get_duration_multiplier() {
+    		return (1 + (m_worst_perf_class - 1) * per_class_slowdown);
     }
 
 
 private:
      int m_worst_perf_class;
+     float per_class_slowdown;
 
 }; // the end of class perf_assist_t
 
 
+// Extern declaration so dfu_power and dfu_traverse can access perf_obj.
+// Object is created in dfu_traverse_impl.cpp
+// TODO: Think of a better way to pass this info around.
 extern perf_assist_t perf_obj;
 
 
