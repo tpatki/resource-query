@@ -139,12 +139,15 @@ public:
     unsigned int select_count (const Flux::Jobspec::Resource &resource,
                                unsigned int qc) const
     {
+    		//std::cout << "In select_count input: " << resource << " select count input: qualcount: " << qc << std::endl;
         if (resource.count.min > resource.count.max
             || resource.count.min > qc)
             return 0;
 
         unsigned int count = 0;
         unsigned int cur = resource.count.min;
+
+       // std::cout << "In select_count, oper is " << resource.count.oper << std::endl;
 
         switch (resource.count.oper) {
         case '+':

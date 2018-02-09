@@ -155,6 +155,7 @@ public:
     template<class compare_op>
     int choose_best_k (unsigned int k, compare_op comp)
     {
+    	//	std::cout << "Need to understand this func: choose_best_k" << std::endl;
         if (k == 0 || k > m_qual_count) {
             errno = EINVAL;
             return -1;
@@ -163,6 +164,7 @@ public:
         int i = 0;
         int old = (int)m_best_k;
         int to_be_selected = k;
+        //Patki Here's where score is sorted.
         std::sort (m_eval_egroups.begin (), m_eval_egroups.end (), comp);
         while (to_be_selected > 0) {
             if (to_be_selected <= m_eval_egroups[i].count)
@@ -394,7 +396,9 @@ public:
     unsigned int qualified_count (const subsystem_t &s, const std::string &r)
     {
         handle_new_keys (s, r);
+     //   std::cout << "In qual count inputs: " << s << " " << r << std::endl;
         auto res_evals = (*m_ssys_map[s])[r];
+       // std::cout << "In qual count,  res_evals: " << res_evals << " qc: " <<  res_evals->qualified_count () << std::endl;
         return res_evals->qualified_count ();
     }
 

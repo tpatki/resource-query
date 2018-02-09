@@ -87,6 +87,7 @@ public:
     void set_match_cb (dfu_match_cb_t *m);
     void clear_err_message ();
 
+
     /*! Exclusive request? Return true if a resource in resources vector
      *  matches resource vertex u and its exclusivity field value is TRUE.
      *  (Note that when the system default configuration is added, it can
@@ -306,6 +307,7 @@ private:
     f_resource_graph_t *m_graph = NULL;
     dfu_match_cb_t *m_match = NULL;
     std::string m_err_msg = "";
+
 }; // the end of class dfu_impl_t
 
 template <class lookup_t>

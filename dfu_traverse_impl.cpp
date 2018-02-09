@@ -35,6 +35,9 @@ using namespace Flux::Jobspec;
 using namespace Flux::resource_model;
 using namespace Flux::resource_model::detail;
 
+//Patki: this is the main cpp file.
+perf_assist_t perf_obj;
+
 /****************************************************************************
  *                                                                          *
  *         DFU Traverser Implementation Private API Definitions             *
@@ -532,9 +535,11 @@ int dfu_impl_t::resolve (vtx_t root, vector<Resource> &resources,
     unsigned int qc;
     unsigned int count;
     const subsystem_t &dom = m_match->dom_subsystem ();
+    // Patki: Finish graph is only called once and here.
+    // This is where ideally the job duration should be updated.
     if (m_match->dom_finish_graph (dom, resources, *m_graph, dfu) != 0)
         goto done;
-
+   // m_match->
     *needs = 1; // if the root is not specified, assume we need 1
     for (auto &resource : resources) {
         if (resource.type == (*m_graph)[root].type) {
@@ -544,6 +549,7 @@ int dfu_impl_t::resolve (vtx_t root, vector<Resource> &resources,
             *needs = count; // if the root is specified, give that much
         }
     }
+
 
     // resolve remaining unconstrained resource types
     for (auto &subsystem : m_match->subsystems ()) {
@@ -611,6 +617,7 @@ int dfu_impl_t::emit_edge (edg_t e)
     return 0;
 }
 
+//Patki Here's where the print occurs.
 int dfu_impl_t::emit_vertex (vtx_t u, unsigned int needs, bool exclusive,
                              stringstream &ss)
 {
@@ -702,6 +709,7 @@ int dfu_impl_t::upd_upv (vtx_t u, const subsystem_t &subsystem,
     return 0;
 }
 
+//Patki Recursive
 int dfu_impl_t::upd_dfv (vtx_t u, unsigned int needs, bool excl,
                          const jobmeta_t &meta, map<string, int64_t> &to_parent,
                          stringstream &ss)
@@ -722,6 +730,7 @@ int dfu_impl_t::upd_dfv (vtx_t u, unsigned int needs, bool excl,
             unsigned int needs = (*m_graph)[*ei].idata.needs;
             vtx_t tgt = target (*ei, *m_graph);
             if (subsystem == dom)
+            		//Patki Recursive call
                 n_plans += upd_dfv (tgt, needs, x, meta, dfu, ss);
             else
                 n_plans += upd_upv (tgt, subsystem, needs, x, meta, dfu);
@@ -1000,6 +1009,7 @@ done:
 void dfu_impl_t::prime (vector<Resource> &resources,
                         std::unordered_map<string, int64_t> &to_parent)
 {
+	//std::cout << "In prime" << std::endl;
     const subsystem_t &subsystem = m_match->dom_subsystem ();
     for (auto &resource : resources) {
         // Use minimum requirement because you don't want to prune search
@@ -1016,6 +1026,7 @@ void dfu_impl_t::prime (vector<Resource> &resources,
 int dfu_impl_t::select (Jobspec::Jobspec &j, vtx_t root, jobmeta_t &meta,
                         bool excl, unsigned int *needs)
 {
+//	std::cout << "In select needs is: " << needs << std::endl;
     int rc = -1;
     scoring_api_t dfu;
     bool x_in = excl;
