@@ -7,4 +7,7 @@ match allocate_orelse_reserve test/data/jobspecs/simple_power/simplest_test_jobs
 match allocate_orelse_reserve test/data/jobspecs/simple_power/simplest_test_jobspec.yaml
 match allocate_orelse_reserve test/data/jobspecs/simple_power/simplest_test_jobspec.yaml
 match allocate_orelse_reserve test/data/jobspecs/simple_power/simplest_test_jobspec.yaml
+match allocate_orelse_reserve test/data/jobspecs/simple_power/simplest_test_jobspec.yaml
+match allocate_orelse_reserve test/data/jobspecs/simple_power/simplest_test_jobspec.yaml
+match allocate_orelse_reserve test/data/jobspecs/simple_power/simplest_test_jobspec.yaml
 quit
