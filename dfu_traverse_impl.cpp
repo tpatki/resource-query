@@ -35,9 +35,6 @@ using namespace Flux::Jobspec;
 using namespace Flux::resource_model;
 using namespace Flux::resource_model::detail;
 
-//Patki: this is the main cpp file.
-perf_assist_t perf_obj;
-
 /****************************************************************************
  *                                                                          *
  *         DFU Traverser Implementation Private API Definitions             *

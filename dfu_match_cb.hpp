@@ -36,7 +36,6 @@
 #include "scoring_api.hpp"
 #include "jobspec.hpp"
 #include "planner/planner.h"
-#include "perf_assist.hpp"
 
 
 namespace Flux {

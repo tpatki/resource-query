@@ -53,14 +53,6 @@ int dfu_traverser_t::schedule (Jobspec::Jobspec &jobspec,
     /* Allocate */
     rc = detail::dfu_impl_t::select (jobspec, root, meta, x, needs);
 
-    // Patki: Successful selection, update duration if the policy is "power"
-    // where we are using a performance class based selection.
-    if (rc == 0 && policy == "power") {
-    		// Patki: update job's duration here based on the worst node it got placed on.
-    		// This way, the job doesn't get killed prematurely because it was allocated a bad node.
-    	     meta.duration = perf_obj.get_duration_multiplier() * meta.duration;
-    }
-
     if ((rc != 0) && (op == match_op_t::MATCH_ALLOCATE_ORELSE_RESERVE)) {
         /* Or else reserve */
         meta.allocate = false;

@@ -113,11 +113,6 @@ public:
        
         overall = (score == MATCH_MET)? (score + g[u].perf_class) : score;
         dfu.set_overall_score (overall);
-
-       if (g[u].type == "node") {
-    	   	   // Update the worst performance class that the job encounters, so as to modify its duration later.
-    	   	   perf_obj.set_worst_perf_class (g[u].perf_class);
-         }
         decr ();
         return (score == MATCH_MET)? 0 : -1;
     }
