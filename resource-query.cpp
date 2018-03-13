@@ -491,7 +491,6 @@ int main (int argc, char *argv[])
     if (ctx->params.matcher_policy == "var_aware") {
       if ((rc = n_dist.set_dist (ctx->params.dist_file)) != 0) {
               cerr << "ERROR: error in reading node distribution" << endl;
-           //   cerr << "ERROR: " << rgen.err_message () << endl;
               return EXIT_FAILURE;
           }
     }

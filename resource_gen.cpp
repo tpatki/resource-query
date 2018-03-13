@@ -221,17 +221,14 @@ vtx_t dfs_emitter_t::emit_vertex (ggv_t u, gge_t e, const gg_t &recipe,
     db.resource_graph[v].paths[ssys] = pref + "/" + db.resource_graph[v].name;
     db.resource_graph[v].idata.member_of[ssys] = "*";
 
-        /*Patki: add perf_class here. For now, assume a random number between 1 and 3*/
-    /*Looks like here is where we do one vertex at a time. */
-    /*Still not sure how this is called from tree_edge*/
-   // recipe[u].perf_class =
-   // db.resource_graph[v].type.compare
-    // Should ideally only be done if the policy is "power" ... how to pass in context here?
+
+    // Should ideally only be done if the policy is "var_aware" ... how to pass in context here?
      if ((db.resource_graph[v].type) == "node") {
-           //db.resource_graph[v].perf_class = (rand() % 3) + 1;
-    	 // +1 because gen_id() starts at 1.
+    	 	 	 /*Patki: add perf_class here. For now, assume a random number between 1 and 3*/
+    	 	 	 //db.resource_graph[v].perf_class = (rand() % 3) + 1;
+    	 	 	 // +1 because gen_id() starts at 1.
     	 	   db.resource_graph[v].perf_class =  n_dist.get_perf_class(db.resource_graph[v].id);
-           std::cout << "ID: %id: " << db.resource_graph[v].id << ", Class: " << db.resource_graph[v].perf_class  << std::endl;
+
     }
     else {
     	 	 db.resource_graph[v].perf_class = 9999;    // large number as we use fold::less for comparison
