@@ -22,46 +22,57 @@
  *  See also:  http://www.gnu.org/licenses/
  \*****************************************************************************/
 
-#ifndef RESOURCE_GEN_HPP
-#define RESOURCE_GEN_HPP
+#ifndef NODE_DIST_HPP
+#define NODE_DIST_HPP
 
-#include <string>
-#include <boost/graph/depth_first_search.hpp>
-#include "resource_graph.hpp"
-#include "resource_gen_spec.hpp"
+#include <unordered_map>
 
 namespace Flux {
 namespace resource_model {
 
-class resource_generator_t {
+class node_dist_t {
 public:
-    resource_generator_t ();
-    resource_generator_t (const resource_generator_t &o);
-    const resource_generator_t &operator=(const resource_generator_t &o);
-    ~resource_generator_t ();
+    node_dist_t () {};
+   ~node_dist_t () {};
 
-    //Patki: cleanup and add definitions to CPP file if things work
+   //Need to handle errors....
+    int set_dist (std::string f) {
+       	std::ifstream node_config_f;
+       	node_config_f.open(f);
+       	std::string parse_str;
+       	std::string first, second;
+       	while (getline(node_config_f, parse_str))
+       	{
+       	    std::stringstream x(parse_str);
+       	    getline(x, first, ',');
+       	    getline(x, second);
+//       	    std::cout << "first: " << first << ", second:" << second << std::endl;
+       	 std::cout << "first: " << std::stoi(first) << ", second:" << std::stoi(second)<< std::endl;
+       	    m_dist[std::stoi(first)] = std::stoi(second);
+       	    std::cout << "SD Address: " << this << std::endl;
+       	}
+       	//Figure out error codes here
+       	return 0;
+       }
 
-//    int read_dist (const std::string &f) {
-//    		int rc = n_dist.set_dist (f);
-//    		return rc;
-//    }
-//
-//    int get_perf_class(int node_id) {
-//         		return n_dist.get_perf_class(node_id);
-//         }
+   int get_perf_class(int node_id) {
+	    std::cout << " GPC Address: " << this << std::endl;
+	   std::cout << "In perf class with input: " << node_id << std::endl;
+	   std::unordered_map<int, int>::const_iterator val = m_dist.find(node_id);
+	   if (val == m_dist.end())
+		   return -1;
+	   else
+		   return val->second;
+   }
 
-    int read_graphml (const std::string &f, resource_graph_db_t &db);
-    const std::string &err_message () const;
 private:
-    resource_gen_spec_t m_gspec;
-    std::string m_err_msg = "";
+    std::unordered_map<int, int> m_dist;
 };
 
 } // namespace resource_model
 } // namespace Flux
 
-#endif // RESOURCE_GEN_HPP
+#endif // NODE_DIST_HPP
 
 /*
  * vi:tabstop=4 shiftwidth=4 expandtab

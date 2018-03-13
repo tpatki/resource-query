@@ -58,6 +58,8 @@ struct test_params_t {
     std::string o_fext;          /* File extension */
     emit_format_t o_format;      /* Output graph format */
     bool elapse_time;            /* Print elapse time */
+    //Patki
+    std::string node_dist; 		/* File for node distribution */
 };
 
 struct resource_context_t {

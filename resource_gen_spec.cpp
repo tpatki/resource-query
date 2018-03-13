@@ -161,9 +161,6 @@ int resource_gen_spec_t::read_graphml (const string &ifn)
     fstream in_file (ifn, fstream::in);
     try {
         boost::read_graphml (in_file, g, dp);
-        /*Patki: add perf_class..*/
-        
-        
     } catch (graph_exception &e) {
         cerr << e.what () << endl;
         rc = -1;

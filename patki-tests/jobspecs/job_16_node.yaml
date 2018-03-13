@@ -1,7 +1,7 @@
 version: 1
 resources:
   - type: node
-    count: 8
+    count: 16
     with:
     - type: slot
       label: default
@@ -11,7 +11,7 @@ resources:
           count: 1
           with:
             - type: core
-              count: 18
+              count: 8
             - type: cpu_power
               count: 1
 # a comment

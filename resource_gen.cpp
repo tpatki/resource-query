@@ -29,6 +29,7 @@
 #include <boost/algorithm/string.hpp>
 #include "resource_gen.hpp"
 #include "planner/planner.h"
+#include "node_dist.hpp"
 
 extern "C" {
 #if HAVE_CONFIG_H
@@ -39,6 +40,9 @@ extern "C" {
 using namespace std;
 using namespace boost;
 using namespace Flux::resource_model;
+
+//Extern definition
+extern node_dist_t n_dist;
 
 /*! Note that this class must be copy-constructible
  * required by the concept of the depth first search
@@ -202,21 +206,6 @@ vtx_t dfs_emitter_t::emit_vertex (ggv_t u, gge_t e, const gg_t &recipe,
     db.resource_graph[v].basename = recipe[u].basename;
     db.resource_graph[v].size = recipe[u].size;
 
-    /*Patki: add perf_class here. For now, assume a random number between 1 and 3*/
-    /*Looks like here is where we do one vertex at a time. */
-    /*Still not sure how this is called from tree_edge*/
-   // recipe[u].perf_class =
-   // db.resource_graph[v].type.compare
-    // Should ideally only be done if the policy is "power" ... how to pass in context here?
-     if ((db.resource_graph[v].type) == "node") {
-            db.resource_graph[v].perf_class = (rand() % 3) + 1;
-    }
-    else {
-    	 	 db.resource_graph[v].perf_class = 9999;    // large number as we use fold::less for comparison
-    }
-
-   //  std::cout << "Type: " << db.resource_graph[v].type << " ID: " << id << " Class: " <<  db.resource_graph[v].perf_class << std::endl;
-
     const char *res_types[1];
     res_types[0] = recipe[u].type.c_str ();
     const uint64_t avail = recipe[u].size;
@@ -231,6 +220,23 @@ vtx_t dfs_emitter_t::emit_vertex (ggv_t u, gge_t e, const gg_t &recipe,
     db.resource_graph[v].name = recipe[u].basename + istr;
     db.resource_graph[v].paths[ssys] = pref + "/" + db.resource_graph[v].name;
     db.resource_graph[v].idata.member_of[ssys] = "*";
+
+        /*Patki: add perf_class here. For now, assume a random number between 1 and 3*/
+    /*Looks like here is where we do one vertex at a time. */
+    /*Still not sure how this is called from tree_edge*/
+   // recipe[u].perf_class =
+   // db.resource_graph[v].type.compare
+    // Should ideally only be done if the policy is "power" ... how to pass in context here?
+     if ((db.resource_graph[v].type) == "node") {
+           //db.resource_graph[v].perf_class = (rand() % 3) + 1;
+    	 // +1 because gen_id() starts at 1.
+    	 	   db.resource_graph[v].perf_class =  n_dist.get_perf_class(db.resource_graph[v].id);
+           std::cout << "ID: %id: " << db.resource_graph[v].id << ", Class: " << db.resource_graph[v].perf_class  << std::endl;
+    }
+    else {
+    	 	 db.resource_graph[v].perf_class = 9999;    // large number as we use fold::less for comparison
+    }
+
 
     //
     // Indexing for fast look-up...
@@ -297,9 +303,10 @@ void dfs_emitter_t::tree_edge (gge_t e, const gg_t &recipe)
     string in;
     int i = 0, j = 0;;
 
+    // March 8, 2018, how to pick from a distribution?
     /*Patki: initialize random seed for perf_class*/
    // if ((db.resource_graph[v].type).compare("node") == 0)
-         srand(time(NULL));
+  //       srand(time(NULL));
     /**/
 
     if (recipe[src_ggv].root) {
@@ -462,11 +469,11 @@ int resource_generator_t::read_graphml (const string &fn, resource_graph_db_t &d
         m_err_msg += ": error in reading " + fn;
         return -1;
     }
-
     //
     // depth_first_search on the generator recipe graph
     // with emitter visitor.
     //
+
     dfs_emitter_t emitter (&db, &m_gspec);
     depth_first_search (m_gspec.gen_graph (), visitor (emitter));
     m_err_msg += emitter.err_message ();

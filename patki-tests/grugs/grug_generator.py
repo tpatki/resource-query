@@ -1,7 +1,13 @@
-# Generates a specific type of grug for testing the performance-class based scheduling. Uses cab system as a reference. 
+# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
+
+# Generates a specific type of grug for testing the performance-class based scheduling. Uses cab system as a reference.
+# Usage:
+# Input:
+ 
+# Notes: 
 # Specifically, it reads the cab_like_cluster.graphml GRUG and changes the number of racks there, 
 # going from 1 to 720 for scaling tests.
-# Cab has similar structure with 72 racks. Each rack as 18 nodes, each node has 16 cores (8 cores per socket). 
+# Cab has 72 racks. Each rack as 18 nodes, each node has 16 cores (8 cores per socket). 
 # CPU power per socket is 115W. Memory is 32 GB per node.   
 # Right now, this is very basic for initial tests, r/w is done line by line, and is not optimal. 
 # This can be modified in the future to generate other kinds of GRUGs, 

@@ -31,6 +31,7 @@
 #include <boost/graph/graphml.hpp>
 #include <boost/filesystem.hpp>
 
+
 namespace Flux {
 namespace resource_model {
 
@@ -50,8 +51,6 @@ struct resource_pool_gen_t {
     long size;
     std::string unit;
     std::string subsystem;
-    /*Patki*/
- //   int perf_class;
 };
 
 struct relation_gen_t {
@@ -101,7 +100,6 @@ public:
     const gen_meth_t to_gen_method_t (const std::string &s) const;
     int read_graphml (const std::string &ifn);
     int write_graphviz (const std::string &ofn, bool simple=false);
-
 private:
     void setup_dynamic_property (dynamic_properties &dp, gg_t &g);
     gg_t g;

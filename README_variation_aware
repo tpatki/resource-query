@@ -1,0 +1,5 @@
+Example test file is in test_config.csv.
+First column is node-ID, and second column is performance class. 
+This allows for deterministic selection of nodes from a predetermined distribution. 
+
+

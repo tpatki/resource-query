@@ -36,6 +36,9 @@
 #include "command.hpp"
 #include "dfu_match_id_based.hpp"
 #include "dfu_match_power.hpp"
+#include "node_dist.hpp"
+
+
 
 extern "C" {
 #if HAVE_CONFIG_H
@@ -46,6 +49,9 @@ extern "C" {
 using namespace std;
 using namespace boost;
 using namespace Flux::resource_model;
+
+//Extern definition
+node_dist_t n_dist;
 
 #define OPTIONS "G:S:P:g:o:t:e:h"
 static const struct option longopts[] = {
@@ -174,6 +180,8 @@ static void set_default_params (test_params_t &params)
     params.o_fext = "dot";
     params.o_format = emit_format_t::GRAPHVIZ_DOT;
     params.elapse_time = false;
+    //Patki
+    params.node_dist = "test_config.csv";
 }
 
 static int string_to_graph_format (string st, emit_format_t &format)
@@ -469,6 +477,13 @@ int main (int argc, char *argv[])
         cerr << "ERROR: " << ctx->params.matcher_policy << endl;
         return EXIT_FAILURE;
     }
+
+    //Patki: check for policy name here before doing this.
+      if ((rc = n_dist.set_dist (ctx->params.node_dist)) != 0) {
+              cerr << "ERROR: error in reading node distribution" << endl;
+           //   cerr << "ERROR: " << rgen.err_message () << endl;
+              return EXIT_FAILURE;
+          }
 
     // Generate a resource graph data store
     resource_generator_t rgen;
