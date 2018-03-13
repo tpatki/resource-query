@@ -1,0 +1,7 @@
+1) node_dist.hpp inclusion and variable declaration should be optimized based on the policy.
+2) error codes from node_dist.hpp need checking
+3) encode the perf_class for just the node using properties, instead of the current wasteful mechanism
+4) Script to generate random job traces for testing
+5) Script for generating the performance class file (from raw data of quartz or cab)
+6) In a separate branch, cherry pick the perf_assist files, and add the slowdown for job times (basically, assume users specify duration based on best nodes). 
+

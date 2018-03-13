@@ -144,6 +144,7 @@ static void usage (int code)
 "\n"
 "    -f, --dist-file\n"
 "            Specify the node distribution file in CSV format for variation-aware scheduling.\n"
+"			 This option will be ignored if the policy is not variation_aware."
 "\n"
 "    -e, --elapse-time\n"
 "            Print the elapse time per scheduling operation.\n"
@@ -487,11 +488,13 @@ int main (int argc, char *argv[])
     }
 
     //Patki: check for policy name here before doing this.
+    if (ctx->params.matcher_policy == "var_aware") {
       if ((rc = n_dist.set_dist (ctx->params.dist_file)) != 0) {
               cerr << "ERROR: error in reading node distribution" << endl;
            //   cerr << "ERROR: " << rgen.err_message () << endl;
               return EXIT_FAILURE;
           }
+    }
 
     // Generate a resource graph data store
     resource_generator_t rgen;
