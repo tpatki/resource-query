@@ -1,5 +1,9 @@
-Example test file is in test_config.csv.
+
+Example node distribution file is in test_config.csv.
 First column is node-ID, and second column is performance class. 
 This allows for deterministic selection of nodes from a predetermined distribution. 
 
-
+The cmd_test.sh script depicts an example of how to use the variation_aware policy.
+In this branch, the job's execution time is not updated because of a slowdown. It is assumed that user's requested duration
+is based on the worst possible node. 
+ 

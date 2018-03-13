@@ -53,7 +53,7 @@ using namespace Flux::resource_model;
 //Extern definition
 node_dist_t n_dist;
 
-#define OPTIONS "G:S:P:g:o:t:e:h"
+#define OPTIONS "G:S:P:g:o:t:f:e:h"
 static const struct option longopts[] = {
     {"grug",             required_argument,  0, 'G'},
     {"match-subsystems", required_argument,  0, 'S'},
@@ -61,7 +61,8 @@ static const struct option longopts[] = {
     {"graph-format",     required_argument,  0, 'g'},
     {"graph-output",     required_argument,  0, 'o'},
     {"test-output",      required_argument,  0, 't'},
-    {"elapse",           required_argument,  0, 'v'},
+	{"dist-file",		required_argument,	0,	'f'},
+    {"elapse",           required_argument,  0, 'e'},
     {"help",             no_argument,        0, 'h'},
     { 0, 0, 0, 0 },
 };
@@ -141,6 +142,9 @@ static void usage (int code)
 "            Specify the graph format of the output file\n"
 "            (default=dot).\n"
 "\n"
+"    -f, --dist-file\n"
+"            Specify the node distribution file in CSV format for variation-aware scheduling.\n"
+"\n"
 "    -e, --elapse-time\n"
 "            Print the elapse time per scheduling operation.\n"
 "\n"
@@ -165,7 +169,8 @@ static dfu_match_cb_t *create_match_cb (const string &policy)
         matcher = (dfu_match_cb_t *)new low_first_t ();
     else if (policy == "locality")
         matcher = (dfu_match_cb_t *)new greater_interval_first_t ();
-    else if (policy == "power")
+    /*Instantiating power_t for var_aware policy, might need better nomenclature in future. */
+    else if (policy == "var_aware")
         matcher = (dfu_match_cb_t *)new power_t ();
     return matcher;
 }
@@ -181,7 +186,7 @@ static void set_default_params (test_params_t &params)
     params.o_format = emit_format_t::GRAPHVIZ_DOT;
     params.elapse_time = false;
     //Patki
-    params.node_dist = "test_config.csv";
+    params.dist_file = "test_config.csv";
 }
 
 static int string_to_graph_format (string st, emit_format_t &format)
@@ -459,6 +464,9 @@ int main (int argc, char *argv[])
             case 't': /* --test-output */
                 ctx->params.r_fname = optarg;
                 break;
+            case 'f': /* --test-output */
+                     ctx->params.dist_file = optarg;
+                     break;
             case 'e': /* --elapse-time */
                 ctx->params.elapse_time = true;
                 break;
@@ -479,7 +487,7 @@ int main (int argc, char *argv[])
     }
 
     //Patki: check for policy name here before doing this.
-      if ((rc = n_dist.set_dist (ctx->params.node_dist)) != 0) {
+      if ((rc = n_dist.set_dist (ctx->params.dist_file)) != 0) {
               cerr << "ERROR: error in reading node distribution" << endl;
            //   cerr << "ERROR: " << rgen.err_message () << endl;
               return EXIT_FAILURE;

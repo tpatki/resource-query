@@ -59,7 +59,7 @@ struct test_params_t {
     emit_format_t o_format;      /* Output graph format */
     bool elapse_time;            /* Print elapse time */
     //Patki
-    std::string node_dist; 		/* File for node distribution */
+    std::string dist_file; 		/* File for node distribution */
 };
 
 struct resource_context_t {
