@@ -1,0 +1,102 @@
+Total nodes: 2688
+Compute nodes: 2604
+
+GENERATED FILE: quartz_dist.csv
+Contains Node ID and performance class. 
+We assume 5 performance classes here. Since a lot of nodes are not numbered in order and are missing in the original file, 
+we sort by the available Node IDs to get the distribution, but map them in order going from Node 1 to Node 2469 (number of entries).
+Then, because each rack as 62 nodes, we assume 39 racks and a total of 2418 nodes are used from this list in order. 
+Note that this doesn't impact the scheduling decisions and is a real large-scale distribution of node performance. 
+We will use this data as baseline and if we had a complete data set, 
+we would have had a slightly different Node ID to performance class mapping. 
+
+================
+
+INPUT FILE: rank_runtime.csv
+
+Processed file from quartz DAT, which lists nodes and their performance at a power cap 
+of 50W per processor for two applications: MG.C and LULESH. Columns are as follows:
+* node: Node ID,
+* runtime_x: mg.C runtime,
+* runtime_y: Lulesh runtime,
+* avgRuntime: ( runtime[mg.C] / medianRuntime[mg.C] + runtime[lulesh] / medianRuntime[lulesh] ) / 2. 
+
+There are some Node IDs missing in this file, and using the dump_missing_nodes.R, we can find out
+which nodes are not accounted for or resulted in missing power/performance. 
+Note that all compute nodes are not numbered in an ordered fashion, and there are some holes as per Trent's email 
+for capturing IO nodes etc. A detailed list of the Node IDs that are missing is provided below.
+
+Compute nodes not accounted for: 
+* 1 - 62 (used for debugging in DAT)
+
+Holes (for login or IO nodes): 
+* 187 - 192
+* 379 - 391
+* 763 - 774
+* 1147 - 1158
+* 1531 - 1542 
+* 1915 - 1926
+* 2299 - 2310
+* 2497 - 2502 
+
+Total: 62 + 6 +  13 + 12 + 12 + 12 + 12 + 12 + 6 = 141
+
+Holes because of incorrect power data or node failures during DAT:
+100, 107, 208, 227, 298, 341, 434, 442, 461, 479, 519, 536, 
+538, 540, 551, 553, 603, 631, 646, 654, 733, 828, 868, 1025, 
+1026, 1137, 1140, 1228, 1271, 1305, 1322, 1327, 1366, 1398, 1407, 1471, 
+1494, 1512, 1659, 1690, 1731, 1754, 1845, 1847, 1859, 1880, 1987, 1997, 
+2038, 2062, 2101, 2109, 2156, 2183, 2278, 2292, 2330, 2336, 2372, 2412, 
+2414, 2419, 2443, 2468, 2486, 2507, 2576, 2581, 2593, 2636, 2642, 2657.
+
+Total: 72
+
+Total holes: 141 + 72 = 219.
+
+=======================
+
+From Trent's email:
+Here is a mapping of the nodes, I am also going to try to get you another map that shows nodes in the rack. You will see holes in these numbers. Those holes are were we have the 2U nodes that route lustre, nfs, or provide login services. All compute nodes are on a psu, so are listed below.
+
+psu1:  quartz[1-62] 
+psu2:  quartz[63-124] 
+psu3:  quartz[125-186] 
+psu4:  quartz[193-254] 
+psu5:  quartz[255-316] 
+psu6:  quartz[317-378] 
+psu7:  quartz[391-452] 
+psu8:  quartz[453-514] 
+psu9:  quartz[515-576] 
+psu10:  quartz[577-638] 
+psu11:  quartz[639-700] 
+psu12:  quartz[701-762] 
+psu13:  quartz[775-836] 
+psu14:  quartz[837-898] 
+psu15:  quartz[899-960] 
+psu16:  quartz[961-1022] 
+psu17:  quartz[1023-1084] 
+psu18:  quartz[1085-1146] 
+psu19:  quartz[1159-1220] 
+psu20:  quartz[1221-1282] 
+psu21:  quartz[1283-1344] 
+psu22:  quartz[1345-1406] 
+psu23:  quartz[1407-1468] 
+psu24:  quartz[1469-1530] 
+psu25:  quartz[1543-1604] 
+psu26:  quartz[1605-1666] 
+psu27:  quartz[1667-1728] 
+psu28:  quartz[1729-1790] 
+psu29:  quartz[1791-1852] 
+psu30:  quartz[1853-1914] 
+psu31:  quartz[1927-1988] 
+psu32:  quartz[1989-2050] 
+psu33:  quartz[2051-2112] 
+psu34:  quartz[2113-2174] 
+psu35:  quartz[2175-2236] 
+psu36:  quartz[2237-2298] 
+psu37:  quartz[2311-2372] 
+psu38:  quartz[2373-2434] 
+psu39:  quartz[2435-2496] 
+psu40:  quartz[2503-2564] 
+psu41:  quartz[2565-2626] 
+psu42:  quartz[2627-2688]
