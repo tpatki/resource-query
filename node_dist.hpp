@@ -45,17 +45,17 @@ public:
        	    std::stringstream x(parse_str);
        	    getline(x, first, ',');
        	    getline(x, second);
-       	    std::cout << "first: " << std::stoi(first) << ", second:" << std::stoi(second)<< std::endl;
+       	//    std::cout << "first: " << std::stoi(first) << ", second:" << std::stoi(second)<< std::endl;
        	    m_dist[std::stoi(first)] = std::stoi(second);
-       	    std::cout << "SD Address: " << this << std::endl;
+       	 //   std::cout << "SD Address: " << this << std::endl;
        	}
        	//Figure out error codes here
        	return 0;
        }
 
    int get_perf_class(int node_id) {
-	   std::cout << " GPC Address: " << this << std::endl;
-	   std::cout << "In perf class with input: " << node_id << std::endl;
+	  // std::cout << " GPC Address: " << this << std::endl;
+	  // std::cout << "In perf class with input: " << node_id << std::endl;
 	   std::unordered_map<int, int>::const_iterator val = m_dist.find(node_id);
 	   if (val == m_dist.end())
 		   return -1;

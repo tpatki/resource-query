@@ -118,6 +118,7 @@
             <data key="unit">W</data>
         </node>
 
+	<!-- 39 racks, 62 nodes per rack, 2418 nodes -->
         <edge id="zone2cluster" source="zone" target="cluster">
             <data key="multi_scale">1</data>
         </edge>
