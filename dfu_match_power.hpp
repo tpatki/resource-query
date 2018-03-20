@@ -44,9 +44,6 @@ namespace resource_model {
 
 /*Patki. Algo: Assume that perf class 1 is better than perf class 2, and so on.
  * Allocate nodes that belong to lowest class first.
- * Assume a 3% difference between performance classes, that way we can modify duration based on the
- * lowest performance class that we get, which will be the class of the last node
- * that we select for that particular job.
  */
 
 class power_t : public dfu_match_cb_t

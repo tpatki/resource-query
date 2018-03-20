@@ -35,10 +35,9 @@ public:
     node_dist_t () {};
    ~node_dist_t () {};
 
-   //Need to handle errors....
     int set_dist (std::string f) {
        	std::ifstream node_config_f;
-       	node_config_f.open(f);
+       	node_config_f.open(f, std::ifstream::in);
        	std::string parse_str;
        	std::string first, second;
        	while (getline(node_config_f, parse_str))
@@ -46,8 +45,7 @@ public:
        	    std::stringstream x(parse_str);
        	    getline(x, first, ',');
        	    getline(x, second);
-//       	    std::cout << "first: " << first << ", second:" << second << std::endl;
-       	 std::cout << "first: " << std::stoi(first) << ", second:" << std::stoi(second)<< std::endl;
+       	    std::cout << "first: " << std::stoi(first) << ", second:" << std::stoi(second)<< std::endl;
        	    m_dist[std::stoi(first)] = std::stoi(second);
        	    std::cout << "SD Address: " << this << std::endl;
        	}
@@ -56,7 +54,7 @@ public:
        }
 
    int get_perf_class(int node_id) {
-	    std::cout << " GPC Address: " << this << std::endl;
+	   std::cout << " GPC Address: " << this << std::endl;
 	   std::cout << "In perf class with input: " << node_id << std::endl;
 	   std::unordered_map<int, int>::const_iterator val = m_dist.find(node_id);
 	   if (val == m_dist.end())

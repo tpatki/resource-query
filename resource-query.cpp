@@ -61,7 +61,7 @@ static const struct option longopts[] = {
     {"graph-format",     required_argument,  0, 'g'},
     {"graph-output",     required_argument,  0, 'o'},
     {"test-output",      required_argument,  0, 't'},
-	{"dist-file",		required_argument,	0,	'f'},
+	{"dist-file",		required_argument,	0, 'f'},
     {"elapse",           required_argument,  0, 'e'},
     {"help",             no_argument,        0, 'h'},
     { 0, 0, 0, 0 },
