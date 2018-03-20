@@ -10,7 +10,7 @@ def random_jobspec ():
 
 def main(): 
     base = 'match allocate_orelse_reserve '
-    num_jobs = 25
+    num_jobs = 200
     f = open('./cmd_inp_quartz', 'w')
 
     for i in range(0,num_jobs):
