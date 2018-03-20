@@ -1,0 +1,26 @@
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_332.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_392.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_356.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_116.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_440.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_46.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_107.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_37.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_376.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_431.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_333.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_389.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_435.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_448.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_78.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_290.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_155.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_91.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_132.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_35.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_405.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_333.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_240.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_216.yaml
+match allocate_orelse_reserve ./jobspecs/quartz_jobspecs/quartz_job_424.yaml
+quit
