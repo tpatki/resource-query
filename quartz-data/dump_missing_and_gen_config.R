@@ -11,17 +11,24 @@ print (missing)
 
 # 5 classes for 39 racks with 62 nodes each. Hardcoded as we are discarding some data.
 # Then create performance classes based on the distribution. 
+#attach(d)
+#d1<-d[order(node),][1:2418,] #Pick first 2148 nodes in order
+#detach(d)
 
-dNew <- data.frame (NodeID = seq (1, (39*62), by=1))
-dNew$AvgRuntime <- d$avgReRuntime[1:(39*62)] #Pick 2418 nodes
+dNew <- data.frame (NodeID = seq(0,(39*62)-1,by=1))
+#dNew$AvgRuntime <- d$avgReRuntime[1:2418]   #Pick 2148 nodes in order
+dNew$AvgRuntime <- sample(d1$avgReRuntime, 2418) #Pick 2418 nodes at random
 dNew$normRuntime <- (dNew$AvgRuntime-min(dNew$AvgRuntime)) /(max(dNew$AvgRuntime)-min(dNew$AvgRuntime))
 
+#dNew$normRuntime <- d1$runtime_x/median(d1$runtime_x)
+
 dNew$perfClass <- 0
-dNew$perfClass[which((dNew$normRuntime <= 0.20))] = 1
-dNew$perfClass[which(dNew$normRuntime > 0.20 & dNew$normRuntime <= 0.40)] = 2
-dNew$perfClass[which(dNew$normRuntime > 0.40 & dNew$normRuntime <= 0.60)] = 3
-dNew$perfClass[which(dNew$normRuntime > 0.60 & dNew$normRuntime <= 0.80)] = 4
-dNew$perfClass[which(dNew$normRuntime > 0.80 & dNew$normRuntime <= 1.00)] = 5
+# Top: 10% Class1, 20% Class2, 20% Class3, 25% each Class 4&5
+dNew$perfClass[which((dNew$normRuntime <= 0.10))] = 1
+dNew$perfClass[which(dNew$normRuntime > 0.10 & dNew$normRuntime <= 0.25)] = 2
+dNew$perfClass[which(dNew$normRuntime > 0.25 & dNew$normRuntime <= 0.40)] = 3
+dNew$perfClass[which(dNew$normRuntime > 0.40 & dNew$normRuntime <= 0.60)] = 4
+dNew$perfClass[which(dNew$normRuntime > 0.60 & dNew$normRuntime <= 1.00)] = 5
 
 # perfpart = floor((39 * 62)/5)         
 # d$perfClass[1:perfpart] = 1
