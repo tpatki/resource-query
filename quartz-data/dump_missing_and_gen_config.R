@@ -40,5 +40,13 @@ dNew$perfClass[which(dNew$normRuntime > 0.60 & dNew$normRuntime <= 1.00)] = 5
 #dNew$perfClass <- d$perfClass[1:(39 * 62)]
 
 
-write.table(subset(dNew, select=c(NodeID, perfClass)), file="quartz-dist.csv", row.names = FALSE, col.names = FALSE, quote = FALSE, sep=',')
-
+#write.table(subset(dNew, select=c(NodeID, perfClass)), file="quartz-dist.csv", row.names = FALSE, col.names = FALSE, quote = FALSE, sep=',')
+pdf('dist_graph.pdf', height = 4, width = 4)
+par(mar=c(4,4,3,1))
+p<-table(dNew$perfClass)
+barplot(p, ylim=c(0,1250), width = rep(0.2,5), space = rep (0.5,5), xlim = c(0,1.5), xlab = 'Performance Class', ylab = 'Frequency', las=1)
+grid(NA,NULL)
+#Add the barplot again so grid lines are in background...argh.
+barplot(p, ylim=c(0,1250), width = rep(0.2,5), space = rep (0.5,5), xlim = c(0,1.5), xlab = 'Performance Class', ylab = 'Frequency', main='Quartz Cluster Variation', las=1, add=T)
+box()
+dev.off()
