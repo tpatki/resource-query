@@ -41,5 +41,22 @@ box()
 dev.off()
 
 
+pdf('fom_hist_worst_class.pdf', width=10, height=5)
+par(mfrow=c(1,3))
+barplot(table(bh$MaxPC), ylim=c(0,200), xlim=c(0,1.5), width = rep(0.2,5), space = rep (0.5,5), xlab="Worst Perf Class Assigned", ylab = "Frequency (Number of Jobs)")
+grid(NA,NULL)
+legend('topright', "Baseline: Highest ID First")
+box()
 
+
+barplot(table(bl$MaxPC), ylim=c(0,200), xlim=c(0,1.5),width = rep(0.2,5), space = rep (0.5,5), xlab="Worst Perf Class Assigned", ylab = "Frequency (Number of Jobs)")
+grid(NA,NULL)
+legend('topright', "Baseline: Lowest ID First")
+box()
+
+barplot(table(v$MaxPC), ylim=c(0,200), xlim=c(0,1.5),width = rep(0.2,5), space = rep (0.5,5), xlab="Worst Perf Class Assigned", ylab = "Frequency (Number of Jobs)")
+grid(NA,NULL)
+legend('topright', "Variation Aware: \nMost Efficient Node First")
+box()
+dev.off()
 
